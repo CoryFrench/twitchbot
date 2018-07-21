@@ -1,11 +1,23 @@
 # Twitch Adventure Bot
-
-* !register to get into the next quest
-* Players assigned a random race/class and are level 1 with default equipment
-* Every 5-10 TBD unit of time the next leg of the adventure
-* RNG Combat
-* People die / level up / get loot
-* Bot reports to chat
-* Repeat until quest is done or all dead, awarding score as appropriate
-* Leaderboard for high score
-* Class specific AI
+## Critical Features (Phase 1 - MVP)
+* Bot "round-tripping" via twitchlib
+* Player registration
+* A single, basic "Encounter" (adventure leg)
+* Announce results
+## Basic Features (Phase 2 - v1)
+* Multiple encounters, encounter pacing
+* Encounter refinement / depth
+* Basic scoreboard
+## Future Features (Backlog)
+* Player depth (class/level/equipment)
+  * Class specific AI
+* Combat refinement
+* Player progression / encounter rewards
+* Advanced bot reporting
+* Scoreboard refinement
+## Design Thoughts / Data Modeling considerations
+* Bot / Game begs for [State pattern](https://en.wikipedia.org/wiki/State_pattern)
+* Encounters could leverage [Strategy pattern](https://en.wikipedia.org/wiki/Strategy_pattern) and [Decorators](https://en.wikipedia.org/wiki/Decorator_pattern)
+* Bot permits registration only during certain states
+* Encounters aggregate players through registration
+* Bot iterates through state transformations
