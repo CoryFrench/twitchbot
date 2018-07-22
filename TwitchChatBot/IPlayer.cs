@@ -8,5 +8,6 @@ namespace TwitchChatBot
 {
     interface IPlayer
     {
+        String Name { get; set; }
     }
 }

@@ -20,22 +20,50 @@ using System.Drawing;
 
 namespace TwitchChatBot
 {
-    class TwitchChatBot
+    class TwitchChatBot : IGame
     {
         TwitchClient _Client = new TwitchClient();
+        JoinedChannel _JoinedChannel = null;
         BotDashboard _Dashboard = null;
+        IGameState _GameState = null;
+        List<IPlayer> _Players = new List<IPlayer>();
 
+        public IGameState State
+        {
+            get
+            {
+                return _GameState;
+            }
+            set
+            {
+                _GameState = value;
+                _GameState.OnStateEntered(this);
+            }
+        }
+
+        public void Announce(String message)
+        {
+            if (_JoinedChannel != null)
+            {
+                _Client.SendMessage(_JoinedChannel, message);
+            }
+        }
+        public void AddPlayer(IPlayer player)
+        {
+            _Players.Add(player);
+        }
+
+        // TODO: We really ought to do proper DataBinding instead of passing the Form in like this.  There's all sorts
+        // of code smells with the encapsulation boundaries being violated between these two classes, but I wanted it to get it compiling again quick.
         public void Connect(BotDashboard dash)
         {
             _Dashboard = dash;
-            // Initialize line takes username / oauth token, may want to un-automate this going forward
+            // TODO: Initialize line takes username / oauth token, may want to un-automate this going forward
             _Client.Initialize(new ConnectionCredentials(Properties.Settings.Default.username, Properties.Settings.Default.oauth));
             _Client.OnConnected += new EventHandler<OnConnectedArgs>(OnConnected);
             _Client.Connect();
         }
 
-        // TODO: We really ought to do proper DataBinding instead of passing the Form in like this.  There's all sorts
-        // of code smells with the encapsulation boundaries being violated between these two classes, but I wanted it to get it compiling again quick.
         public void JoinChannel(string channel)
         {
             if (_Dashboard != null)
@@ -57,8 +85,9 @@ namespace TwitchChatBot
         /// <param name="e">args</param>
         public void OnJoinedChannel(object sender, OnJoinedChannelArgs e)
         {
+            _JoinedChannel = new JoinedChannel(e.Channel);
             //Fluff
-            _Client.SendMessage(new JoinedChannel(e.Channel), "Bot joined");
+            _Client.SendMessage(_JoinedChannel, "Bot joined");
         }
 
         /// <summary>

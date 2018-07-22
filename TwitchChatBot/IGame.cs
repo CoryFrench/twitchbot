@@ -12,5 +12,8 @@ namespace TwitchChatBot
     interface IGame
     {
         IGameState State { get; set; }
+
+        void Announce(string v);
+        void AddPlayer(IPlayer player);
     }
 }

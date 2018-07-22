@@ -16,6 +16,13 @@ namespace TwitchChatBot
         /// they try to register when registrations aren't allowed.
         /// </summary>
         /// <param name="player">Player trying to register</param>
-        void Register(IPlayer player);
+        /// <param name="game">Active game</param>
+        void Register(IPlayer player, IGame game);
+
+        /// <summary>
+        /// Just gives our State objects an opportunity to do things
+        /// </summary>
+        /// <param name="game">Active game</param>
+        void OnStateEntered(IGame game);
     }
 }
