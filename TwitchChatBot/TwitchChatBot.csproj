@@ -145,9 +145,12 @@
       <DependentUpon>BotDashboard.cs</DependentUpon>
     </Compile>
     <Compile Include="GameState.cs" />
+    <Compile Include="IBotLog.cs" />
     <Compile Include="IGame.cs" />
     <Compile Include="IGameState.cs" />
     <Compile Include="IPlayer.cs" />
+    <Compile Include="ListBoxLog.cs" />
+    <Compile Include="LogMessage.cs" />
     <Compile Include="Player.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

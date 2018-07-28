@@ -17,17 +17,36 @@ using TwitchLib.Api.Services.Events.FollowerService;
 using TwitchLib.Client.Exceptions;
 using System.Windows.Forms;
 using System.Drawing;
+using System.Collections;
+using System.ComponentModel;
 
 namespace TwitchChatBot
 {
     // TODO: TwitchChatBot probably shouldn't inherit from IGame
-    class TwitchChatBot : IGame
+    class TwitchChatBot : IGame, IBotModel
     {
         TwitchClient _Client = new TwitchClient();
+        bool _IsConnected = false;
         JoinedChannel _JoinedChannel = null;
         BotDashboard _Dashboard = null;
-        IGameState _GameState = null;
+        IGameState _GameState = new GameOverState();
         List<IPlayer> _Players = new List<IPlayer>();
+
+        BindingList<LogMessage> _MessageLog = new BindingList<LogMessage>();
+
+        public event ListChangedEventHandler ListChanged;
+
+        public TwitchChatBot()
+        {
+            _MessageLog.ListChanged += new ListChangedEventHandler(
+                (object o, ListChangedEventArgs e) =>
+                {
+                    if (ListChanged != null)
+                    {
+                        ListChanged(o, e);
+                    }
+                });
+        }
 
         /// <summary>
         /// The State for the Game state machine, calls OnStateEntered when set
@@ -42,6 +61,17 @@ namespace TwitchChatBot
             {
                 _GameState = value;
                 _GameState.OnStateEntered(this);
+            }
+        }
+
+        public bool IsConnected
+        {
+            get { return _IsConnected; }
+            set
+            {
+                _IsConnected = value;
+                if (_Dashboard != null)
+                    _Dashboard.OnIsConnectedChanged(IsConnected);
             }
         }
 
@@ -74,9 +104,13 @@ namespace TwitchChatBot
             _Client.SendWhisper(user, message);
         }
 
-        public void AddPlayer(IPlayer player)
+        public void AddPlayer(IPlayer newPlayer)
         {
-            _Players.Add(player);
+            if (!_Players.Any(p => p.Name.Equals(newPlayer.Name, StringComparison.InvariantCultureIgnoreCase)))
+            { 
+                _Players.Add(newPlayer);
+                _MessageLog.Add(new LogMessage(Level.Info, newPlayer.Name + " registered"));
+            }
         }
 
         // TODO: We really ought to do proper DataBinding instead of passing the Form in like this.  There's all sorts
@@ -138,8 +172,7 @@ namespace TwitchChatBot
         private void OnJoinedChannel(object sender, OnJoinedChannelArgs e)
         {
             _JoinedChannel = new JoinedChannel(e.Channel);
-            //Fluff
-            _Client.SendMessage(_JoinedChannel, "Bot joined");
+            _MessageLog.Add(new LogMessage(Level.Info, "Joined channel " + _JoinedChannel.Channel));
         }
 
         /// <summary>
@@ -153,9 +186,115 @@ namespace TwitchChatBot
             { 
                 _Dashboard.BeginInvoke((MethodInvoker)delegate ()
                 {
-                    _Dashboard.SetConnectionColor(Color.Green);
+                    IsConnected = true;
                 });
             }
         }
+
+        #region IBindingList nonsense... WIP
+        public bool AllowNew => false;
+
+        public bool AllowEdit => false;
+
+        public bool AllowRemove => true;
+
+        public bool SupportsChangeNotification => true;
+
+        public bool SupportsSearching => true;
+
+        public bool SupportsSorting => true;
+
+        public bool IsSorted => false;
+
+        public PropertyDescriptor SortProperty => throw new NotImplementedException();
+
+        public ListSortDirection SortDirection => throw new NotImplementedException();
+
+        public bool IsReadOnly => true;
+
+        public bool IsFixedSize => false;
+
+        public int Count => _MessageLog.Count();
+
+        public object SyncRoot => throw new NotImplementedException();
+
+        public bool IsSynchronized => throw new NotImplementedException();
+
+        public object this[int index] { get => _MessageLog[index]; set => _MessageLog[index] = (LogMessage)value; }
+        public object AddNew()
+        {
+            throw new NotImplementedException();
+        }
+
+        public void AddIndex(PropertyDescriptor property)
+        {
+            throw new NotImplementedException();
+        }
+
+        public void ApplySort(PropertyDescriptor property, ListSortDirection direction)
+        {
+            throw new NotImplementedException();
+        }
+
+        public int Find(PropertyDescriptor property, object key)
+        {
+            throw new NotImplementedException();
+        }
+
+        public void RemoveIndex(PropertyDescriptor property)
+        {
+            throw new NotImplementedException();
+        }
+
+        public void RemoveSort()
+        {
+            throw new NotImplementedException();
+        }
+
+        public int Add(object value)
+        {
+            throw new NotImplementedException();
+        }
+
+        public bool Contains(object value)
+        {
+            throw new NotImplementedException();
+        }
+
+        public void Clear()
+        {
+            _MessageLog.Clear();
+        }
+
+        public int IndexOf(object value)
+        {
+           return _MessageLog.IndexOf((LogMessage)value);
+        }
+
+        public void Insert(int index, object value)
+        {
+            _MessageLog.Insert(index, (LogMessage)value);
+        }
+
+        public void Remove(object value)
+        {
+            _MessageLog.Remove((LogMessage)value);
+        }
+
+        public void RemoveAt(int index)
+        {
+            _MessageLog.RemoveAt(index);
+        }
+
+        public void CopyTo(Array array, int index)
+        {
+            throw new NotImplementedException();
+        }
+
+        public IEnumerator GetEnumerator()
+        {
+            throw new NotImplementedException();
+        }
+        #endregion
     }
 }

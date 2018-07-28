@@ -17,7 +17,7 @@ namespace TwitchChatBot
     {
         String ChannelTextboxPlaceholder = @"Enter channel to join";
         TwitchChatBot ChatBot = new TwitchChatBot();
-
+        ListBoxLog log = null;
         /// <summary>
         /// Creates a new BotDashboard Form
         /// </summary>
@@ -25,6 +25,18 @@ namespace TwitchChatBot
         {
             InitializeComponent();
             JoinChannelTextBox.Text = ChannelTextboxPlaceholder;
+            log = new ListBoxLog(LogListView);
+            ChatBot.ListChanged += new ListChangedEventHandler((object o, ListChangedEventArgs e) =>
+            {
+                if (e.ListChangedType == ListChangedType.ItemAdded)
+                {
+                    var logMessage = (LogMessage)ChatBot[e.NewIndex];
+                    if (logMessage != null)
+                    {
+                        log.Log(logMessage.Level, logMessage.Message);
+                    }
+                }
+            });
             ChatBot.Connect(this);
         }
 
@@ -52,9 +64,10 @@ namespace TwitchChatBot
             }
         }
 
-        internal void SetConnectionColor(Color color)
+        public void OnIsConnectedChanged(bool isConnected)
         {
-            ConnectionIndicatorTextBox.BackColor = color;
+            ConnectionIndicatorTextBox.BackColor = isConnected ? Color.Green : Color.Red;
         }
+
     }
 }
