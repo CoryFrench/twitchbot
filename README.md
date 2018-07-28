@@ -1,9 +1,9 @@
 # Twitch Adventure Bot
 ## Critical Features (Phase 1 - MVP)
 * ~~Bot "round-tripping" via twitchlib~~
-* Player registration
+* ~~Player registration~~
 * A single, basic "Encounter" (adventure leg)
-* Announce results
+* ~~Announce results~~
 ## Basic Features (Phase 2 - v1)
 * Multiple encounters, encounter pacing
 * Encounter refinement / depth

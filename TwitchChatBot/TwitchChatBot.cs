@@ -20,6 +20,7 @@ using System.Drawing;
 
 namespace TwitchChatBot
 {
+    // TODO: TwitchChatBot probably shouldn't inherit from IGame
     class TwitchChatBot : IGame
     {
         TwitchClient _Client = new TwitchClient();
@@ -28,6 +29,9 @@ namespace TwitchChatBot
         IGameState _GameState = null;
         List<IPlayer> _Players = new List<IPlayer>();
 
+        /// <summary>
+        /// The State for the Game state machine, calls OnStateEntered when set
+        /// </summary>
         public IGameState State
         {
             get
@@ -41,6 +45,7 @@ namespace TwitchChatBot
             }
         }
 
+        /// Print a message to the channel
         public void Announce(String message)
         {
             if (_JoinedChannel != null)
@@ -48,6 +53,27 @@ namespace TwitchChatBot
                 _Client.SendMessage(_JoinedChannel, message);
             }
         }
+
+        /// <summary>
+        /// Announce the results of the game.  High scores, winner, etc...
+        /// </summary>
+        public void End()
+        {
+            if (_Players.Count == 0)
+            {
+                Announce("No players registered");
+            }
+            else
+            {
+                Announce(_Players[RNG.GetInt(0, _Players.Count - 1)].Name + " wins!");
+            }
+        }
+
+        public void Whisper(String user, String message)
+        {
+            _Client.SendWhisper(user, message);
+        }
+
         public void AddPlayer(IPlayer player)
         {
             _Players.Add(player);
@@ -79,12 +105,26 @@ namespace TwitchChatBot
 
         private void OnMessageReceived(object sender, OnMessageReceivedArgs e)
         {
-            switch (e.ChatMessage.Message.ToString())
+            var messageAsString = e.ChatMessage.Message.ToString();
+
+            // TODO: Add !about
+            // TODO: Add !nextAdventure
+            // TODO: Add !playerStats
+            switch (messageAsString)
             {
+                case "!start":
+                    // Setting the State to GameStarted kicks the Game's state machine off
+                    State = new GameStartedState();
+                    break;
                 case "!register":
-                    AddPlayer(new Player(e.ChatMessage.Username));
-                    _Client.SendMessage(_JoinedChannel, e.ChatMessage.Username + " has joined the next adventure.");
-                    // May want to add !about, !nextAdventure, !playerStats commands?
+                    // Depending on GameState, Register may succeed or tell player why registration is closed
+                    State.Register(new Player(e.ChatMessage.Username), this);
+                    break;
+                default:
+                    if (!String.IsNullOrEmpty(messageAsString) && messageAsString[0] == '!')
+                    {
+                        Whisper(e.ChatMessage.Username, "Command not recognized");
+                    }
                     break;
 
             }

@@ -20,7 +20,7 @@ namespace TwitchChatBot
         void Register(IPlayer player, IGame game);
 
         /// <summary>
-        /// Just gives our State objects an opportunity to do things
+        /// Just gives our State objects an opportunity to do things upon being entered
         /// </summary>
         /// <param name="game">Active game</param>
         void OnStateEntered(IGame game);

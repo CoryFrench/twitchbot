@@ -24,12 +24,13 @@ namespace TwitchChatBot
 
     class RegisteringPlayersGameState : IGameState
     {
+        static int SecondsPerEncounter = 30;
+
         Timer _Timer = null;
         public void OnStateEntered(IGame game)
         {
             game.Announce("Player registration has begun!");
 
-            // Switch to "GameOverState" after 5 minutes.
             _Timer = new Timer((e) =>
             {
                 game.State = new GameOverState();
@@ -38,7 +39,7 @@ namespace TwitchChatBot
                     _Timer.Dispose();
                 }
                 catch { };
-            }, null, TimeSpan.Zero, TimeSpan.FromMinutes(5));
+            }, null, TimeSpan.FromSeconds(SecondsPerEncounter), TimeSpan.Zero);
         }
 
         public void Register(IPlayer player, IGame game)
@@ -52,7 +53,7 @@ namespace TwitchChatBot
     {
         public void OnStateEntered(IGame game)
         {
-            game.Announce("Game over!");
+            game.End();
         }
 
         public void Register(IPlayer player, IGame game)
