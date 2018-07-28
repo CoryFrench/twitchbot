@@ -53,6 +53,7 @@ namespace TwitchChatBot
     {
         public void OnStateEntered(IGame game)
         {
+            Encounter e = new Encounter();
             game.End();
         }
 

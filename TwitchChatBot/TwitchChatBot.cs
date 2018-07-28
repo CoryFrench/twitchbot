@@ -89,14 +89,7 @@ namespace TwitchChatBot
         /// </summary>
         public void End()
         {
-            if (_Players.Count == 0)
-            {
-                Announce("No players registered");
-            }
-            else
-            {
-                Announce(_Players[RNG.GetInt(0, _Players.Count - 1)].Name + " wins!");
-            }
+
         }
 
         public void Whisper(String user, String message)
@@ -189,6 +182,11 @@ namespace TwitchChatBot
                     IsConnected = true;
                 });
             }
+        }
+
+        public void CreateEncounter()
+        {
+
         }
 
         #region IBindingList nonsense... WIP
