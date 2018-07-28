@@ -72,18 +72,30 @@ namespace TwitchChatBot
                 {
                     _Client.JoinChannel(channel);
                     _Client.OnJoinedChannel += new EventHandler<OnJoinedChannelArgs>(OnJoinedChannel);
+                    _Client.OnMessageReceived += new EventHandler<OnMessageReceivedArgs>(OnMessageReceived);
                 });
             }
         }
 
-        // TODO: Should these event handlers be public?
+        private void OnMessageReceived(object sender, OnMessageReceivedArgs e)
+        {
+            switch (e.ChatMessage.Message.ToString())
+            {
+                case "!register":
+                    AddPlayer(new Player(e.ChatMessage.Username));
+                    _Client.SendMessage(_JoinedChannel, e.ChatMessage.Username + " has joined the next adventure.");
+                    // May want to add !about, !nextAdventure, !playerStats commands?
+                    break;
+
+            }
+        }
 
         /// <summary>
         /// Event handler for when a Twitch Channel has been joined successfully
         /// </summary>
         /// <param name="sender">The TwitchClient object</param>
         /// <param name="e">args</param>
-        public void OnJoinedChannel(object sender, OnJoinedChannelArgs e)
+        private void OnJoinedChannel(object sender, OnJoinedChannelArgs e)
         {
             _JoinedChannel = new JoinedChannel(e.Channel);
             //Fluff
@@ -95,7 +107,7 @@ namespace TwitchChatBot
         /// </summary>
         /// <param name="sender">TwitchClient object</param>
         /// <param name="e">args</param>
-        public void OnConnected(object sender, OnConnectedArgs e)
+        private void OnConnected(object sender, OnConnectedArgs e)
         {
             if (_Dashboard != null)
             { 
