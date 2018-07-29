@@ -7,9 +7,15 @@ using System.Threading.Tasks;
 
 namespace TwitchChatBot
 {
-    class GameState
+    public class GameState
     { 
-        public static ICollection<IGameState> AllStates
+        public enum Type : Int32
+        {
+            GameStarted = 0,
+            RegisteringPlayers,
+            GameOver
+        }
+        public static IReadOnlyList<IGameState> AllStates
         {
             get => new List<IGameState>
             {
@@ -18,10 +24,15 @@ namespace TwitchChatBot
                 new GameOverState()
             };
         }
+        public static IGameState FromType(Type t)
+        {
+            return AllStates[(Int32)t];
+        }
     }
 
     class GameStartedState : IGameState
     {
+        public GameState.Type Type => GameState.Type.GameStarted;
         public String Name => "Game Started State";
 
         public void OnStateEntered(IGame game)
@@ -44,6 +55,7 @@ namespace TwitchChatBot
         Timer _Timer = null;
 
         public String Name => "Registering Players State";
+        public GameState.Type Type => GameState.Type.RegisteringPlayers;
 
         public void OnStateEntered(IGame game)
         {
@@ -72,7 +84,8 @@ namespace TwitchChatBot
 
     class GameOverState : IGameState
     {
-       public String Name => "Game Over State";
+        public String Name => "Game Over State";
+        public GameState.Type Type => GameState.Type.GameOver;
 
         public void OnStateEntered(IGame game)
         {

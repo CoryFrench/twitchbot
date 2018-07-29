@@ -58,7 +58,7 @@ namespace TwitchChatBot
             bindingSource.DataSource = GameState.AllStates;
             StateSelectionComboBox.DataSource = bindingSource.DataSource;
             StateSelectionComboBox.DisplayMember = "Name";
-            StateSelectionComboBox.ValueMember = "Name";
+            StateSelectionComboBox.ValueMember = "Type";
 
             // Attach ChatBot as our ViewModel to power our View
             iDashboardModelBindingSource.DataSource = _ChatBot;
@@ -95,7 +95,11 @@ namespace TwitchChatBot
 
         private void ForceState_Click(object sender, EventArgs e)
         {
-
+            var stateType = StateSelectionComboBox.SelectedValue as GameState.Type?;
+            if (stateType != null)
+            {
+                _ChatBot.State = GameState.FromType(stateType.Value);
+            }
         }
     }
 }

@@ -29,7 +29,7 @@ namespace TwitchChatBot
         Action<Action> _UIThreadRunner = null;
         bool _IsConnected = false;
         bool _RunLocalGame = true;
-        bool _IsRunLocalGameEnabled = true;
+        bool _CanChangeRunLocalGame = true;
         JoinedChannel _JoinedChannel = null;
         IGameState _GameState = new GameOverState();
         List<IPlayer> _Players = new List<IPlayer>();
@@ -63,6 +63,7 @@ namespace TwitchChatBot
             set
             {
                 _GameState = value;
+                CanChangeRunLocalGame = _GameState.Type == GameState.Type.GameOver;
                 _GameState.OnStateEntered(this);
             }
         }
@@ -77,7 +78,7 @@ namespace TwitchChatBot
             }
         }
 
-        public ICollection<IGameState> AllStates
+        public IReadOnlyCollection<IGameState> AllStates
         {
             get => GameState.AllStates;
         }
@@ -102,15 +103,15 @@ namespace TwitchChatBot
                 }
             }
         }
-        public bool IsRunLocalGameEnabled
+        public bool CanChangeRunLocalGame
         {
-            get => _IsRunLocalGameEnabled;
+            get => _CanChangeRunLocalGame;
             set
             {
-                if (_IsRunLocalGameEnabled != value)
+                if (_CanChangeRunLocalGame != value)
                 { 
-                    _IsRunLocalGameEnabled = value;
-                    OnPropertyChanged("IsRunLocalGameEnabled");
+                    _CanChangeRunLocalGame = value;
+                    OnPropertyChanged("CanChangeRunLocalGame");
                 }
             }
         }
@@ -120,7 +121,7 @@ namespace TwitchChatBot
         {
             if (ShouldRunLocalGame)
             {
-                _MessageLog.Add(new LogMessage(Level.Info, message));
+                _MessageLog.Add(new LogMessage(Level.Verbose, message));
             }
             else if (_JoinedChannel != null)
             {

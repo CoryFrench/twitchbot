@@ -22,12 +22,12 @@ namespace TwitchChatBot
 
         public String Message
         {
-            get; set;
+            get => _Message; set => _Message = value;
         }
 
         public Level Level
         {
-            get; set;
+            get => _Level; set => _Level = value;
         }
     }
 }

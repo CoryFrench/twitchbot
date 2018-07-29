@@ -24,11 +24,11 @@ namespace TwitchChatBot
         /// <summary>
         /// Whether or not the ShouldRunLocalGame setting is changeable
         /// </summary>
-        bool IsRunLocalGameEnabled { get; set; }
+        bool CanChangeRunLocalGame { get; set; }
 
         /// <summary>
         /// All valid game states one could transition to
         /// </summary>
-        ICollection<IGameState> AllStates { get; }
+        IReadOnlyCollection<IGameState> AllStates { get; }
     }
 }
