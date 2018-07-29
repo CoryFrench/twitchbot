@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace TwitchChatBot
 {
-    interface IPlayer
+    interface IPlayer : ICreature
     {
         String Name { get; set; }
     }

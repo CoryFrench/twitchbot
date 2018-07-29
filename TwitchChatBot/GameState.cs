@@ -19,7 +19,7 @@ namespace TwitchChatBot
         {
             game.Announce("Player registration will begin shortly");
         }
-        
+
     }
 
     class RegisteringPlayersGameState : IGameState
@@ -45,6 +45,7 @@ namespace TwitchChatBot
         public void Register(IPlayer player, IGame game)
         {
             game.AddPlayer(player);
+            
             game.Announce(player.Name + " has joined the adventure!");
         }
     }
@@ -53,7 +54,6 @@ namespace TwitchChatBot
     {
         public void OnStateEntered(IGame game)
         {
-            Encounter e = new Encounter();
             game.End();
         }
 

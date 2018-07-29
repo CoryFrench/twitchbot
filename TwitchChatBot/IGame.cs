@@ -15,7 +15,10 @@ namespace TwitchChatBot
 
         void Announce(string v);
         void AddPlayer(IPlayer player);
-        void CreateEncounter();
+        void CreateEncounter(IGame game);
         void End();
+        IPlayer GetPlayer(int index);
+        int GetPlayerCount();
+        void RemovePlayer(IPlayer player);
     }
 }
