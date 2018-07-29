@@ -17,6 +17,10 @@ namespace TwitchChatBot
             {
                 PlayersNotDead.Add(game.GetPlayer(x));
                 CreaturesNotDead.Add(new Creature("Skeleton", 12, 4, 2, 1, 2, 2));
+                if (RNG.GetInt(0, 2) > 0)
+                { 
+                    CreaturesNotDead.Add(new Creature("Skeleton", 12, 4, 2, 1, 2, 2));
+                }
             }
         }
 
@@ -34,32 +38,41 @@ namespace TwitchChatBot
         {
             while (PlayersNotDead.Count != 0 && CreaturesNotDead.Count != 0)
             {
+                var deadCreatures = new List<ICreature>();
                 foreach (IPlayer player in PlayersNotDead)
                 {
-                    // Check for death
-                    if(player.CurrentHP >= 0)
-                    {
-                        PlayersNotDead.Remove(player);
-                    }
                     // Attack Creatures Code
                     foreach(Player attackingPlayer in PlayersNotDead)
                     {
-                        attackingPlayer.Attack(CreaturesNotDead[RNG.GetInt(0, CreaturesNotDead.Count)]);
+                        var target = CreaturesNotDead[RNG.GetInt(0, CreaturesNotDead.Count - 1)];
+                        attackingPlayer.Attack(target);
+                        if (target.CurrentHP <= 0)
+                        {
+                            deadCreatures.Add(target);
+                        }
                     }
 
                 }
+                foreach (ICreature deadCreature in deadCreatures)
+                {
+                    CreaturesNotDead.RemoveAll(creatureToMatch => creatureToMatch == deadCreature);
+                }
                 foreach (ICreature creature in CreaturesNotDead)
                 {
-                    //Check for death
-                    if(creature.CurrentHP >= 0)
-                    {
-                        CreaturesNotDead.Remove(creature);
-                    }
                     // Attack Players Code
                     foreach(Creature attackingCreature in CreaturesNotDead)
                     {
-                        attackingCreature.Attack(PlayersNotDead[RNG.GetInt(0, PlayersNotDead.Count)]);
+                        var target = PlayersNotDead[RNG.GetInt(0, PlayersNotDead.Count - 1)];
+                        attackingCreature.Attack(target);
+                        if (target.CurrentHP <= 0)
+                        {
+                            deadCreatures.Add(target);
+                        }
                     }
+                }
+                foreach (ICreature deadCreature in deadCreatures)
+                {
+                    PlayersNotDead.RemoveAll(creatureToMatch => creatureToMatch == deadCreature);
                 }
             }
         }

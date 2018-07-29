@@ -90,7 +90,16 @@ namespace TwitchChatBot
 
         public void OnStateEntered(IGame game)
         {
-            game.End();
+            var encounter = new Encounter(game);
+            encounter.Resolve();
+            var s = new StringBuilder();
+            s.Append("Creatures Alive: ");
+            foreach (var c in encounter.PlayersNotDead.Union(encounter.CreaturesNotDead))
+            {
+                s.Append(c.Name + ", ");
+            }
+            s.Remove(s.Length - (", ".Length), ", ".Length);
+            game.Announce(s.ToString());
         }
 
         public void Register(IPlayer player, IGame game)
