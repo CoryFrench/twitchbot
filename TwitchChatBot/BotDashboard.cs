@@ -101,5 +101,10 @@ namespace TwitchChatBot
                 _ChatBot.State = GameState.FromType(stateType.Value);
             }
         }
+
+        private void RegisterPlayerButton_Click(object sender, EventArgs e)
+        {
+            _ChatBot.State.Register(new Player(_ChatBot.GetPlayerCount().ToString()), _ChatBot);
+        }
     }
 }

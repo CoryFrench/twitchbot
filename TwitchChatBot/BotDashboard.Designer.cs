@@ -39,9 +39,10 @@ namespace TwitchChatBot
             this.groupBox1 = new System.Windows.Forms.GroupBox();
             this.LogListBox = new System.Windows.Forms.ListBox();
             this.RunLocalGameCheckbox = new System.Windows.Forms.CheckBox();
-            this.iDashboardModelBindingSource = new System.Windows.Forms.BindingSource(this.components);
             this.StateSelectionComboBox = new System.Windows.Forms.ComboBox();
             this.ForceStateButton = new System.Windows.Forms.Button();
+            this.RegisterPlayerButton = new System.Windows.Forms.Button();
+            this.iDashboardModelBindingSource = new System.Windows.Forms.BindingSource(this.components);
             this.tableLayoutPanel1.SuspendLayout();
             this.groupBox1.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.iDashboardModelBindingSource)).BeginInit();
@@ -114,6 +115,7 @@ namespace TwitchChatBot
             this.tableLayoutPanel1.Controls.Add(this.StateSelectionComboBox, 2, 0);
             this.tableLayoutPanel1.Controls.Add(this.ForceStateButton, 3, 0);
             this.tableLayoutPanel1.Controls.Add(this.JoinChannelButton, 3, 1);
+            this.tableLayoutPanel1.Controls.Add(this.RegisterPlayerButton, 4, 0);
             this.tableLayoutPanel1.Location = new System.Drawing.Point(12, 12);
             this.tableLayoutPanel1.Name = "tableLayoutPanel1";
             this.tableLayoutPanel1.RowCount = 4;
@@ -164,10 +166,6 @@ namespace TwitchChatBot
             this.RunLocalGameCheckbox.Text = "Run Local Game";
             this.RunLocalGameCheckbox.UseVisualStyleBackColor = true;
             // 
-            // iDashboardModelBindingSource
-            // 
-            this.iDashboardModelBindingSource.DataSource = typeof(TwitchChatBot.IDashboardModel);
-            // 
             // StateSelectionComboBox
             // 
             this.StateSelectionComboBox.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right)));
@@ -188,6 +186,22 @@ namespace TwitchChatBot
             this.ForceStateButton.Text = "Force State";
             this.ForceStateButton.UseVisualStyleBackColor = true;
             this.ForceStateButton.Click += new System.EventHandler(this.ForceState_Click);
+            // 
+            // RegisterPlayerButton
+            // 
+            this.RegisterPlayerButton.AutoSize = true;
+            this.RegisterPlayerButton.Dock = System.Windows.Forms.DockStyle.Left;
+            this.RegisterPlayerButton.Location = new System.Drawing.Point(553, 3);
+            this.RegisterPlayerButton.Name = "RegisterPlayerButton";
+            this.RegisterPlayerButton.Size = new System.Drawing.Size(115, 28);
+            this.RegisterPlayerButton.TabIndex = 9;
+            this.RegisterPlayerButton.Text = "Register Player";
+            this.RegisterPlayerButton.UseVisualStyleBackColor = true;
+            this.RegisterPlayerButton.Click += new System.EventHandler(this.RegisterPlayerButton_Click);
+            // 
+            // iDashboardModelBindingSource
+            // 
+            this.iDashboardModelBindingSource.DataSource = typeof(TwitchChatBot.IDashboardModel);
             // 
             // BotDashboard
             // 
@@ -220,6 +234,7 @@ namespace TwitchChatBot
         private System.Windows.Forms.ComboBox StateSelectionComboBox;
         private System.Windows.Forms.Button ForceStateButton;
         private System.Windows.Forms.BindingSource iDashboardModelBindingSource;
+        private System.Windows.Forms.Button RegisterPlayerButton;
     }
 }
 

@@ -121,7 +121,7 @@ namespace TwitchChatBot
         {
             if (ShouldRunLocalGame)
             {
-                _MessageLog.Add(new LogMessage(Level.Verbose, message));
+                _MessageLog.Add(new LogMessage(Level.Debug, message));
             }
             else if (_JoinedChannel != null)
             {
