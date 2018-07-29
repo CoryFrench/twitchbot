@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace TwitchChatBot
 {
-    class LogMessage : INotifyPropertyChanged
+    class LogMessage
     {
         private String _Message = String.Empty;
         private Level _Level = Level.Debug;
@@ -20,33 +20,14 @@ namespace TwitchChatBot
             _Message = message;
         }
 
-        private void OnPropertyChanged(string PropertyName)
-        {
-            if (PropertyChanged != null)
-            {
-                PropertyChanged(this, new PropertyChangedEventArgs(PropertyName));
-            }
-        }
         public String Message
         {
-            get => _Message;
-            set
-            {
-                _Message = value;
-                OnPropertyChanged("Message");
-            }
+            get; set;
         }
 
         public Level Level
         {
-            get => _Level;
-            set
-            {
-                _Level = Level;
-                OnPropertyChanged("Level");
-            }
+            get; set;
         }
-
-        public event PropertyChangedEventHandler PropertyChanged;
     }
 }

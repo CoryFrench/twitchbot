@@ -9,7 +9,7 @@ namespace TwitchChatBot
     /// <summary>
     /// IGameState represents the State interface in our State pattern.
     /// </summary>
-    interface IGameState
+   public interface IGameState
     {
         /// <summary>
         /// Register a player for the game, if the current IGameState permits.  We should probably let players know if
@@ -24,5 +24,10 @@ namespace TwitchChatBot
         /// </summary>
         /// <param name="game">Active game</param>
         void OnStateEntered(IGame game);
+
+        /// <summary>
+        /// Human friendly string name for the state
+        /// </summary>
+        String Name { get; }
     }
 }

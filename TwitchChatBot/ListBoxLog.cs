@@ -11,7 +11,7 @@ namespace TwitchChatBot
     /// <summary>
     /// Shamelessly pilfered from StackOverflow, we can change this later if we want...
     /// </summary>
-    public enum Level : int
+    internal enum Level : int
     {
         Critical = 0,
         Error = 1,
@@ -20,9 +20,9 @@ namespace TwitchChatBot
         Verbose = 4,
         Debug = 5
     };
-    public sealed class ListBoxLog : IDisposable
+    internal sealed class ListBoxLog : IDisposable
     {
-        private const string DEFAULT_MESSAGE_FORMAT = "{0} [{5}] : {8}";
+        private const string DEFAULT_MESSAGE_FORMAT = "{0} [{6}] : {8}";
         private const int DEFAULT_MAX_LINES_IN_LISTBOX = 2000;
 
         private bool _disposed;
@@ -107,17 +107,17 @@ namespace TwitchChatBot
 
         private class LogEvent
         {
-            public LogEvent(Level level, string message)
+            internal LogEvent(Level level, string message)
             {
                 EventTime = DateTime.Now;
                 Level = level;
                 Message = message;
             }
 
-            public readonly DateTime EventTime;
+            internal readonly DateTime EventTime;
 
-            public readonly Level Level;
-            public readonly string Message;
+            internal readonly Level Level;
+            internal readonly string Message;
         }
         private void WriteEvent(LogEvent logEvent)
         {
@@ -156,7 +156,7 @@ namespace TwitchChatBot
             string message = logEvent.Message;
             if (message == null) { message = "<NULL>"; }
             return string.Format(messageFormat,
-                /* {0} */ logEvent.EventTime.ToString("yyyy-MM-dd HH:mm:ss.fff"),
+                /* {0} */ logEvent.EventTime.ToString("g"),
                 /* {1} */ logEvent.EventTime.ToString("yyyy-MM-dd HH:mm:ss"),
                 /* {2} */ logEvent.EventTime.ToString("yyyy-MM-dd"),
                 /* {3} */ logEvent.EventTime.ToString("HH:mm:ss.fff"),
@@ -188,9 +188,9 @@ namespace TwitchChatBot
 
         }
 
-        public ListBoxLog(ListBox listBox) : this(listBox, DEFAULT_MESSAGE_FORMAT, DEFAULT_MAX_LINES_IN_LISTBOX) { }
-        public ListBoxLog(ListBox listBox, string messageFormat) : this(listBox, messageFormat, DEFAULT_MAX_LINES_IN_LISTBOX) { }
-        public ListBoxLog(ListBox listBox, string messageFormat, int maxLinesInListbox)
+        internal ListBoxLog(ListBox listBox) : this(listBox, DEFAULT_MESSAGE_FORMAT, DEFAULT_MAX_LINES_IN_LISTBOX) { }
+        internal ListBoxLog(ListBox listBox, string messageFormat) : this(listBox, messageFormat, DEFAULT_MAX_LINES_IN_LISTBOX) { }
+        internal ListBoxLog(ListBox listBox, string messageFormat, int maxLinesInListbox)
         {
             _disposed = false;
 
@@ -216,15 +216,15 @@ namespace TwitchChatBot
             _listBox.DrawMode = DrawMode.OwnerDrawFixed;
         }
 
-        public void Log(string message) { Log(Level.Debug, message); }
-        public void Log(string format, params object[] args) { Log(Level.Debug, (format == null) ? null : string.Format(format, args)); }
-        public void Log(Level level, string format, params object[] args) { Log(level, (format == null) ? null : string.Format(format, args)); }
-        public void Log(Level level, string message)
+        internal void Log(string message) { Log(Level.Debug, message); }
+        internal void Log(string format, params object[] args) { Log(Level.Debug, (format == null) ? null : string.Format(format, args)); }
+        internal void Log(Level level, string format, params object[] args) { Log(level, (format == null) ? null : string.Format(format, args)); }
+        internal void Log(Level level, string message)
         {
             WriteEvent(new LogEvent(level, message));
         }
 
-        public bool Paused
+        internal bool Paused
         {
             get { return _paused; }
             set { _paused = value; }

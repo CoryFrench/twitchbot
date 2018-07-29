@@ -23,27 +23,30 @@ using System.ComponentModel;
 namespace TwitchChatBot
 {
     // TODO: TwitchChatBot probably shouldn't inherit from IGame
-    class TwitchChatBot : IGame, IBotModel
+    class ChatBot : IGame, IDashboardModel
     {
         TwitchClient _Client = new TwitchClient();
+        Action<Action> _UIThreadRunner = null;
         bool _IsConnected = false;
+        bool _RunLocalGame = true;
+        bool _IsRunLocalGameEnabled = true;
         JoinedChannel _JoinedChannel = null;
-        BotDashboard _Dashboard = null;
         IGameState _GameState = new GameOverState();
         List<IPlayer> _Players = new List<IPlayer>();
 
         BindingList<LogMessage> _MessageLog = new BindingList<LogMessage>();
 
-        public event ListChangedEventHandler ListChanged;
+        public event EventHandler<LogMessage> MessageLogged;
+        public event PropertyChangedEventHandler PropertyChanged;
 
-        public TwitchChatBot()
+        public ChatBot()
         {
             _MessageLog.ListChanged += new ListChangedEventHandler(
                 (object o, ListChangedEventArgs e) =>
                 {
-                    if (ListChanged != null)
+                    if (MessageLogged != null)
                     {
-                        ListChanged(o, e);
+                        MessageLogged(this, _MessageLog[e.NewIndex]);
                     }
                 });
         }
@@ -66,19 +69,60 @@ namespace TwitchChatBot
 
         public bool IsConnected
         {
-            get { return _IsConnected; }
+            get => _IsConnected;
             set
             {
                 _IsConnected = value;
-                if (_Dashboard != null)
-                    _Dashboard.OnIsConnectedChanged(IsConnected);
+                OnPropertyChanged("IsConnected");
+            }
+        }
+
+        public ICollection<IGameState> AllStates
+        {
+            get => GameState.AllStates;
+        }
+
+        private void OnPropertyChanged(String property)
+        {
+            if (PropertyChanged != null)
+            {
+                _UIThreadRunner(() => PropertyChanged(this, new PropertyChangedEventArgs(property)));
+            }
+        }
+
+        public bool ShouldRunLocalGame
+        {
+            get => _RunLocalGame;
+            set
+            {
+                if (_RunLocalGame != value)
+                {
+                    _RunLocalGame = value;
+                    OnPropertyChanged("ShouldRunLocalGame");
+                }
+            }
+        }
+        public bool IsRunLocalGameEnabled
+        {
+            get => _IsRunLocalGameEnabled;
+            set
+            {
+                if (_IsRunLocalGameEnabled != value)
+                { 
+                    _IsRunLocalGameEnabled = value;
+                    OnPropertyChanged("IsRunLocalGameEnabled");
+                }
             }
         }
 
         /// Print a message to the channel
         public void Announce(String message)
         {
-            if (_JoinedChannel != null)
+            if (ShouldRunLocalGame)
+            {
+                _MessageLog.Add(new LogMessage(Level.Info, message));
+            }
+            else if (_JoinedChannel != null)
             {
                 _Client.SendMessage(_JoinedChannel, message);
             }
@@ -95,6 +139,7 @@ namespace TwitchChatBot
         public void Whisper(String user, String message)
         {
             _Client.SendWhisper(user, message);
+            _MessageLog.Add(new LogMessage(Level.Debug, message));
         }
 
         public void AddPlayer(IPlayer newPlayer)
@@ -106,11 +151,9 @@ namespace TwitchChatBot
             }
         }
 
-        // TODO: We really ought to do proper DataBinding instead of passing the Form in like this.  There's all sorts
-        // of code smells with the encapsulation boundaries being violated between these two classes, but I wanted it to get it compiling again quick.
-        public void Connect(BotDashboard dash)
+        public void Connect(Action<Action> uiThreadRunner)
         {
-            _Dashboard = dash;
+            _UIThreadRunner = uiThreadRunner;
             // TODO: Initialize line takes username / oauth token, may want to un-automate this going forward
             _Client.Initialize(new ConnectionCredentials(Properties.Settings.Default.username, Properties.Settings.Default.oauth));
             _Client.OnConnected += new EventHandler<OnConnectedArgs>(OnConnected);
@@ -119,15 +162,9 @@ namespace TwitchChatBot
 
         public void JoinChannel(string channel)
         {
-            if (_Dashboard != null)
-            {
-                _Dashboard.BeginInvoke((MethodInvoker)delegate ()
-                {
-                    _Client.JoinChannel(channel);
-                    _Client.OnJoinedChannel += new EventHandler<OnJoinedChannelArgs>(OnJoinedChannel);
-                    _Client.OnMessageReceived += new EventHandler<OnMessageReceivedArgs>(OnMessageReceived);
-                });
-            }
+            _Client.JoinChannel(channel);
+            _Client.OnJoinedChannel += new EventHandler<OnJoinedChannelArgs>(OnJoinedChannel);
+            _Client.OnMessageReceived += new EventHandler<OnMessageReceivedArgs>(OnMessageReceived);
         }
 
         private void OnMessageReceived(object sender, OnMessageReceivedArgs e)
@@ -150,7 +187,7 @@ namespace TwitchChatBot
                 default:
                     if (!String.IsNullOrEmpty(messageAsString) && messageAsString[0] == '!')
                     {
-                        Whisper(e.ChatMessage.Username, "Command not recognized");
+                        Whisper(e.ChatMessage.Username, "Command not recognized : `" + messageAsString + "`");
                     }
                     break;
 
@@ -175,13 +212,7 @@ namespace TwitchChatBot
         /// <param name="e">args</param>
         private void OnConnected(object sender, OnConnectedArgs e)
         {
-            if (_Dashboard != null)
-            { 
-                _Dashboard.BeginInvoke((MethodInvoker)delegate ()
-                {
-                    IsConnected = true;
-                });
-            }
+             IsConnected = true;
         }
 
         public void CreateEncounter()
@@ -189,110 +220,5 @@ namespace TwitchChatBot
 
         }
 
-        #region IBindingList nonsense... WIP
-        public bool AllowNew => false;
-
-        public bool AllowEdit => false;
-
-        public bool AllowRemove => true;
-
-        public bool SupportsChangeNotification => true;
-
-        public bool SupportsSearching => true;
-
-        public bool SupportsSorting => true;
-
-        public bool IsSorted => false;
-
-        public PropertyDescriptor SortProperty => throw new NotImplementedException();
-
-        public ListSortDirection SortDirection => throw new NotImplementedException();
-
-        public bool IsReadOnly => true;
-
-        public bool IsFixedSize => false;
-
-        public int Count => _MessageLog.Count();
-
-        public object SyncRoot => throw new NotImplementedException();
-
-        public bool IsSynchronized => throw new NotImplementedException();
-
-        public object this[int index] { get => _MessageLog[index]; set => _MessageLog[index] = (LogMessage)value; }
-        public object AddNew()
-        {
-            throw new NotImplementedException();
-        }
-
-        public void AddIndex(PropertyDescriptor property)
-        {
-            throw new NotImplementedException();
-        }
-
-        public void ApplySort(PropertyDescriptor property, ListSortDirection direction)
-        {
-            throw new NotImplementedException();
-        }
-
-        public int Find(PropertyDescriptor property, object key)
-        {
-            throw new NotImplementedException();
-        }
-
-        public void RemoveIndex(PropertyDescriptor property)
-        {
-            throw new NotImplementedException();
-        }
-
-        public void RemoveSort()
-        {
-            throw new NotImplementedException();
-        }
-
-        public int Add(object value)
-        {
-            throw new NotImplementedException();
-        }
-
-        public bool Contains(object value)
-        {
-            throw new NotImplementedException();
-        }
-
-        public void Clear()
-        {
-            _MessageLog.Clear();
-        }
-
-        public int IndexOf(object value)
-        {
-           return _MessageLog.IndexOf((LogMessage)value);
-        }
-
-        public void Insert(int index, object value)
-        {
-            _MessageLog.Insert(index, (LogMessage)value);
-        }
-
-        public void Remove(object value)
-        {
-            _MessageLog.Remove((LogMessage)value);
-        }
-
-        public void RemoveAt(int index)
-        {
-            _MessageLog.RemoveAt(index);
-        }
-
-        public void CopyTo(Array array, int index)
-        {
-            throw new NotImplementedException();
-        }
-
-        public IEnumerator GetEnumerator()
-        {
-            throw new NotImplementedException();
-        }
-        #endregion
     }
 }

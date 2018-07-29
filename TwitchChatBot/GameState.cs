@@ -7,8 +7,23 @@ using System.Threading.Tasks;
 
 namespace TwitchChatBot
 {
+    class GameState
+    { 
+        public static ICollection<IGameState> AllStates
+        {
+            get => new List<IGameState>
+            {
+                new GameStartedState(),
+                new RegisteringPlayersGameState(),
+                new GameOverState()
+            };
+        }
+    }
+
     class GameStartedState : IGameState
     {
+        public String Name => "Game Started State";
+
         public void OnStateEntered(IGame game)
         {
             game.Announce("A new adventure is beginning!");
@@ -27,18 +42,24 @@ namespace TwitchChatBot
         static int SecondsPerEncounter = 30;
 
         Timer _Timer = null;
+
+        public String Name => "Registering Players State";
+
         public void OnStateEntered(IGame game)
         {
             game.Announce("Player registration has begun!");
 
             _Timer = new Timer((e) =>
             {
-                game.State = new GameOverState();
-                try
-                {
-                    _Timer.Dispose();
+                if (game.State == this)
+                { 
+                    game.State = new GameOverState();
+                    try
+                    {
+                        _Timer.Dispose();
+                    }
+                    catch { };
                 }
-                catch { };
             }, null, TimeSpan.FromSeconds(SecondsPerEncounter), TimeSpan.Zero);
         }
 
@@ -51,6 +72,8 @@ namespace TwitchChatBot
 
     class GameOverState : IGameState
     {
+       public String Name => "Game Over State";
+
         public void OnStateEntered(IGame game)
         {
             Encounter e = new Encounter();

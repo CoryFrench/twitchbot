@@ -6,8 +6,14 @@ using System.Threading.Tasks;
 
 namespace TwitchChatBot
 {
-    interface IPlayer
+    /// <summary>
+    /// Interface representing a player in the game
+    /// </summary>
+    public interface IPlayer
     {
+        /// <summary>
+        /// Player name
+        /// </summary>
         String Name { get; set; }
     }
 }
