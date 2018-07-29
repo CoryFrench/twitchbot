@@ -8,7 +8,7 @@ namespace TwitchChatBot
 {
     interface IEncounter
     {
-        void Add(ICreature creature);
+        void AddCreature(ICreature creature);
         void Resolve();
     }
 }

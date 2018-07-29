@@ -6,13 +6,16 @@ using System.Threading.Tasks;
 
 namespace TwitchChatBot
 {
-    interface ICreature
+    public interface ICreature
     {
         String Name { get; set; }
-        String Class { get; set; }
         int CurrentHP { get; set; }
         int MaxHP { get; set; }
         int AC { get; set; }
-        void Attack();
+        int ToHitBonus { get; set; } 
+        int DamageDice { get; set; }
+        int DamageSides { get; set; }
+        int DamageBonus { get; set; }
+        void Attack(ICreature creature);
     }
 }

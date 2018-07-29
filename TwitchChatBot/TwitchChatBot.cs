@@ -134,7 +134,7 @@ namespace TwitchChatBot
         /// </summary>
         public void End()
         {
-
+            
         }
 
         public void Whisper(String user, String message)
@@ -216,9 +216,28 @@ namespace TwitchChatBot
              IsConnected = true;
         }
 
-        public void CreateEncounter()
+        public void CreateEncounter(IGame game)
         {
+            Encounter e = new Encounter(this);
+            e.Resolve();
+        }
 
+        public IPlayer GetPlayer(int index)
+        {
+            return _Players[index];
+        }
+
+        public int GetPlayerCount()
+        {
+            return _Players.Count();
+        }
+
+        public void RemovePlayer(IPlayer player)
+        {
+            if (_Players.Contains(player))
+            {
+                _Players.Remove(player);
+            }
         }
 
     }

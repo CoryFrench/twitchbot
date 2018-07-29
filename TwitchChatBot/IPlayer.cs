@@ -9,7 +9,7 @@ namespace TwitchChatBot
     /// <summary>
     /// Interface representing a player in the game
     /// </summary>
-    public interface IPlayer
+    public interface IPlayer : ICreature
     {
         /// <summary>
         /// Player name

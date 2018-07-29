@@ -147,6 +147,7 @@
     <Compile Include="BotDashboard.Designer.cs">
       <DependentUpon>BotDashboard.cs</DependentUpon>
     </Compile>
+    <Compile Include="Creature.cs" />
     <Compile Include="Encounter.cs" />
     <Compile Include="GameState.cs" />
     <Compile Include="IDashboardModel.cs" />

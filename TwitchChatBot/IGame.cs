@@ -29,10 +29,13 @@ namespace TwitchChatBot
         /// <summary>
         /// Creates an Encounter
         /// </summary>
-        void CreateEncounter();
+        void CreateEncounter(IGame game);
         /// <summary>
         ///  Ends the game
         /// </summary>
         void End();
+        IPlayer GetPlayer(int index);
+        int GetPlayerCount();
+        void RemovePlayer(IPlayer player);
     }
 }
