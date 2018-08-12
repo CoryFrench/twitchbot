@@ -94,7 +94,7 @@ namespace TwitchChatBot
             encounter.Resolve();
             var s = new StringBuilder();
             s.Append("Creatures Alive: ");
-            foreach (var c in encounter.PlayersNotDead.Union(encounter.CreaturesNotDead))
+            foreach (var c in encounter.creaturesInCombat)
             {
                 s.Append(c.Name + ", ");
             }

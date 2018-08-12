@@ -8,71 +8,80 @@ namespace TwitchChatBot
 {
     class Encounter : IEncounter
     {
-        public List<ICreature> CreaturesNotDead = new List<ICreature>();
-        public List<IPlayer> PlayersNotDead = new List<IPlayer>();
-
+        public List<ICreature> creaturesInCombat = new List<ICreature>();
         public Encounter(IGame game)
         {
             for (int x = 0; x < game.GetPlayerCount(); x++)
             {
-                PlayersNotDead.Add(game.GetPlayer(x));
-                CreaturesNotDead.Add(new Creature("Skeleton", 12, 4, 2, 1, 2, 2));
+                creaturesInCombat.Add(game.GetPlayer(x));
+                creaturesInCombat.Add(new Creature("Grid Bug", 9, 1, 1, 1, 1, 0, 12, 0, 0));
+                creaturesInCombat.Add(new Creature("Grid Bug", 9, 1, 1, 1, 1, 0, 12, 0, 0));
+                creaturesInCombat.Add(new Creature("Grid Bug", 9, 1, 1, 1, 1, 0, 12, 0, 0));
                 if (RNG.GetInt(0, 2) > 0)
-                { 
-                    CreaturesNotDead.Add(new Creature("Skeleton", 12, 4, 2, 1, 2, 2));
+                {
+                    creaturesInCombat.Add(new Creature("Grid Bug", 9, 1, 12, 10, 1, 0, 12, 0, 0));
                 }
             }
         }
 
         public void AddCreature(ICreature creature)
         {
-            this.CreaturesNotDead.Add(creature);
+            this.creaturesInCombat.Add(creature);
         }
 
         public void AddPlayer(IPlayer player)
         {
-            this.PlayersNotDead.Add(player);
+            this.creaturesInCombat.Add(player);
         }
 
         public void Resolve()
         {
-            while (PlayersNotDead.Count != 0 && CreaturesNotDead.Count != 0)
+            int playersAlive = 0;
+            int creaturesAlive = 0;
+            creaturesInCombat = creaturesInCombat.OrderByDescending(creature => creature.Speed).ToList();
+            foreach (ICreature creature in creaturesInCombat)
+            {
+                if (creature.IsPlayer) { playersAlive++; }
+                else if (!creature.IsPlayer) { creaturesAlive++; }
+            }
+            while (creaturesAlive != 0 && playersAlive != 0)
             {
                 var deadCreatures = new List<ICreature>();
-                foreach (IPlayer player in PlayersNotDead)
+                foreach (ICreature attackingCreature in creaturesInCombat)
                 {
-                    // Attack Creatures Code
-                    foreach(Player attackingPlayer in PlayersNotDead)
+                    var target = attackingCreature.GetCreatureFromList(creaturesInCombat);
+                    if (target.IsAlive)
                     {
-                        var target = CreaturesNotDead[RNG.GetInt(0, CreaturesNotDead.Count - 1)];
-                        attackingPlayer.Attack(target);
-                        if (target.CurrentHP <= 0)
-                        {
-                            deadCreatures.Add(target);
-                        }
-                    }
 
-                }
-                foreach (ICreature deadCreature in deadCreatures)
-                {
-                    CreaturesNotDead.RemoveAll(creatureToMatch => creatureToMatch == deadCreature);
-                }
-                foreach (ICreature creature in CreaturesNotDead)
-                {
-                    // Attack Players Code
-                    foreach(Creature attackingCreature in CreaturesNotDead)
-                    {
-                        var target = PlayersNotDead[RNG.GetInt(0, PlayersNotDead.Count - 1)];
-                        attackingCreature.Attack(target);
-                        if (target.CurrentHP <= 0)
+                        if (attackingCreature.IsFriendly(target))
                         {
-                            deadCreatures.Add(target);
+                            //Do good / heal thing. Placeholder heal action below.
+                            if (target.CurrentHP < target.MaxHP)
+                            {
+                                target.CurrentHP++;
+                                Console.WriteLine(attackingCreature.Name + " heals " + target.Name + " for 1 hp");
+                            }
+                            else
+                            {
+                                Console.WriteLine("Target already all full hp");
+                            }
+                        }
+                        else
+                        {
+                            attackingCreature.Attack(target);
+                            if (target.CurrentHP <= 0)
+                            {
+                                if (target.IsPlayer) { playersAlive--; }
+                                else if (!target.IsPlayer) { creaturesAlive--; }
+                                target.IsAlive = false;
+                                deadCreatures.Add(target);
+                            }
                         }
                     }
                 }
                 foreach (ICreature deadCreature in deadCreatures)
                 {
-                    PlayersNotDead.RemoveAll(creatureToMatch => creatureToMatch == deadCreature);
+                    creaturesInCombat.RemoveAll(creatureToMatch => creatureToMatch == deadCreature);
                 }
             }
         }
