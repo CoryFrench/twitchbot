@@ -14,12 +14,11 @@ namespace TwitchChatBot
             for (int x = 0; x < game.GetPlayerCount(); x++)
             {
                 creaturesInCombat.Add(game.GetPlayer(x));
-                creaturesInCombat.Add(new Creature("Grid Bug", 9, 1, 1, 1, 1, 0, 12, 0, 0));
-                creaturesInCombat.Add(new Creature("Grid Bug", 9, 1, 1, 1, 1, 0, 12, 0, 0));
-                creaturesInCombat.Add(new Creature("Grid Bug", 9, 1, 1, 1, 1, 0, 12, 0, 0));
+                creaturesInCombat.Add(new Creature("Skeleton", 14, 1, 2, 1, 4, 0, 12, 0, 0));
+                creaturesInCombat.Add(new Creature("Skeleton", 14, 1, 2, 1, 4, 0, 12, 0, 0));
                 if (RNG.GetInt(0, 2) > 0)
                 {
-                    creaturesInCombat.Add(new Creature("Grid Bug", 9, 1, 12, 10, 1, 0, 12, 0, 0));
+                    creaturesInCombat.Add(new Creature("Skeleton", 14, 1, 2, 1, 4, 0, 12, 0, 0));
                 }
             }
         }
@@ -36,6 +35,7 @@ namespace TwitchChatBot
 
         public void Resolve()
         {
+            int turn = 1;
             int playersAlive = 0;
             int creaturesAlive = 0;
             creaturesInCombat = creaturesInCombat.OrderByDescending(creature => creature.Speed).ToList();
@@ -46,25 +46,22 @@ namespace TwitchChatBot
             }
             while (creaturesAlive != 0 && playersAlive != 0)
             {
+                Console.WriteLine("\nIt is turn number {0}", turn);
                 var deadCreatures = new List<ICreature>();
                 foreach (ICreature attackingCreature in creaturesInCombat)
                 {
                     var target = attackingCreature.GetCreatureFromList(creaturesInCombat);
-                    if (target.IsAlive)
+                    //Garbage code to always make creatures find a valid enemy. Feels bad to use, don't like it. But it works for now.
+                    while (target.IsPlayer == attackingCreature.IsPlayer)
+                    {
+                        target = attackingCreature.GetCreatureFromList(creaturesInCombat);
+                    }
+                    if (target.IsAlive() && attackingCreature.IsAlive())
                     {
 
                         if (attackingCreature.IsFriendly(target))
                         {
-                            //Do good / heal thing. Placeholder heal action below.
-                            if (target.CurrentHP < target.MaxHP)
-                            {
-                                target.CurrentHP++;
-                                Console.WriteLine(attackingCreature.Name + " heals " + target.Name + " for 1 hp");
-                            }
-                            else
-                            {
-                                Console.WriteLine("Target already all full hp");
-                            }
+                            //Do good / heal thing
                         }
                         else
                         {
@@ -73,7 +70,6 @@ namespace TwitchChatBot
                             {
                                 if (target.IsPlayer) { playersAlive--; }
                                 else if (!target.IsPlayer) { creaturesAlive--; }
-                                target.IsAlive = false;
                                 deadCreatures.Add(target);
                             }
                         }
@@ -83,7 +79,27 @@ namespace TwitchChatBot
                 {
                     creaturesInCombat.RemoveAll(creatureToMatch => creatureToMatch == deadCreature);
                 }
+                turn++;
             }
+
+            // End Encounter Code
+
+            if(playersAlive == 0)
+            {
+                // Game Over
+                Console.WriteLine("Game over!");
+                Console.WriteLine("You made it to level {0}", 1);
+            }else
+            {
+                // Level Up
+                foreach(Player player in creaturesInCombat)
+                {
+                    player.Level++;
+                }
+                // New Encounter
+
+            }
+
         }
     }
 }

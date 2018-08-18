@@ -10,7 +10,6 @@ namespace TwitchChatBot
     {
         public string Name { get; set; }
         public bool IsPlayer { get; set; }
-        public bool IsAlive { get; set; }
         public int AC { get; set; }
         public int MaxHP { get; set; }
         public int CurrentHP { get; set;}
@@ -27,7 +26,6 @@ namespace TwitchChatBot
         {
             Name = name;
             IsPlayer = false;
-            IsAlive = true;
             AC = ac;
             Level = level;
             Speed = speed;
@@ -46,11 +44,14 @@ namespace TwitchChatBot
 
         public void Attack(ICreature creature)
         {
-            if (RNG.Roll(1, 20) + ToHitBonus >= creature.AC)
+            int toHit = RNG.Roll(1, 20) + ToHitBonus;
+            Console.WriteLine("{0} rolls a {1} to hit! ({2} + {3})", this.Name, toHit,toHit - ToHitBonus, ToHitBonus);
+            if (toHit >= creature.AC)
             {
                 int damage = (RNG.Roll(DamageDice, DamageSides) + DamageBonus) - creature.DR;
                 creature.CurrentHP -= damage;
                 Console.WriteLine(this.Name + " hits " + creature.Name + " for " + damage);
+                Console.WriteLine("{0} now has {1} hitpoint remaining", creature.Name, creature.CurrentHP);
             }
         }
 
@@ -62,6 +63,11 @@ namespace TwitchChatBot
         public bool IsFriendly(ICreature target)
         {
             return (target.IsPlayer == this.IsPlayer);
+        }
+
+        public bool IsAlive()
+        {
+            return this.CurrentHP > 0;
         }
     }
 }

@@ -10,7 +10,7 @@ namespace TwitchChatBot
     {
         String Name { get; set; }
         bool IsPlayer { get; set; }
-        bool IsAlive { get; set; }
+        bool IsAlive();
         int CurrentHP { get; set; }
         int Level { get; set; }
         int Speed { get; set; }
